@@ -67,35 +67,60 @@ int **Matrix(void)
 
 int Radio(int **matriz, int x, int y)
 {
-  int i, j, z;
-  int r = 250;
-  int radio;
+  int n = 250;
+  int r, i, j;
 
   int q1, q2, q3, q4;
-  int c1, c2, c3, c4;
 
-  for (z = 1; z < r; z ++)
+  int radio;
+  int a = 0;
+
+  for (r = 1; r < n; r ++)
   {
-    for (i = 1; i < z; i ++)
+    if (a == 1)
     {
-      for (j = 1; j < z; j ++)
+      break;
+    }
+    else
+    {
+      for (i = (x - r); i <= (x + r); i ++)
       {
-	//z = pow(pow(i, 2.0) + pow(j, 2.0), 0.5);
-	
-	q1 = matriz[x + i][y + j];
-	q2 = matriz[x - i][y + j];
-	q3 = matriz[x - i][y - j];
-	q4 = matriz[x + i][y - j];
-	
-	if (q1 == 1 || q2 == 1 || q3 == 1 || q4 == 1)
+	if (a == 1)
 	{
-	  radio = z;
 	  break;
+	}
+	else
+	{
+	  for (j = (y - r); j <= (y + r); j ++)
+	  {
+	    if (a == 1)
+	    {
+	      break;
+	    }
+	    else
+	    {
+	      q1 = matriz[x + r][y];
+	      q2 = matriz[x - r][y];
+	      q3 = matriz[x][y + r];
+	      q4 = matriz[x][y - r];
+	  
+	      if (q1 == 1 || q2 == 1 || q3 == 1 || q4 == 1)
+	      {
+		radio = r - 1;
+		a = 1;
+	      }
+	    
+	      else if (matriz[i][j] == 1)
+	      {
+		radio = r;
+		a = 1;
+	      }
+	    }
+	  }
 	}
       }
     }
   }
-  return radio;
 }
 
 void Pasos(int **matriz, int *x, int *y)
