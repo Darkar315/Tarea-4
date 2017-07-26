@@ -5,6 +5,8 @@
 
 // CONSTANTES GLOBALES
 
+#define Nt 10000
+
 int Nx;
 int Ny;
 
@@ -14,7 +16,9 @@ int **Matrix(void);
 
 double Radio(int x, int y);
 
-int Num_random(int **matriz);
+void Pasos(int **matriz, int *x, int *y);
+
+//int Periodico();
 
 // FUNCION MAIN
 
@@ -22,11 +26,20 @@ int main(void)
 {
   int i, j = 0;
 
+  int filas;
+  int cols;
+
   Nx = 500;
   Ny = 744;
 
   int **matriz = Matrix();
+
+  Pasos(matriz, &filas, &cols);
+
+  printf("%d %d\n", filas, cols);
 }
+
+// CUERPO DE LAS FUNCIONES 
 
 int **Matrix(void)
 {
@@ -45,36 +58,50 @@ int **Matrix(void)
       fscanf(mapa, "%d", &matrix[i][j]);
      }
    }
+
+   fclose(mapa);
    return matrix;
 }
 
-double Radio(int x, int y)
+int Radio(int **matriz, int x, int y)
 {
-  double r = 0;
-  r = pow(x, 2.0) + pow(y, 2.0);
-  return r;
-}
+  int i, j, z;
+  int r = 10;
 
-int Num_random(int **matriz)
-{
-  int filas;
-  int cols;
-
-  int i;
-  int j;
-  double alpha;
-
-  srand(time(NULL));
-  for (i = 0; i < Nx; i ++)
+  for (z = -r; z < r: z ++)
   {
-    int filas = (rand() % (Nx + 1));
-    for (j = 0; j < Ny; j ++)
+    for (i = 1; i < r; i ++)
     {
-      int cols = (rand() % (Ny + 1));
-      if (matriz[filas][cols] == 0)
+      for (j = 1; j < r; j ++)
       {
-	/////////////////////////////////////////////////////////////
+	matriz[x + i][y + j];
+	matriz[x - i][y + j];
+	matriz[x - i][y - j];
+	matriz[x + i][y - j];
+	
+	int radio = pow(i - x, 2.0) + pow(j - y, 2.0);
+	if ()
+	{
+	  
+	}
       }
     }
   }
+}
+
+void Pasos(int **matriz, int *x, int *y)
+{
+  srand(time(NULL));
+  *x = (rand() % (Nx + 1));
+  *y = (rand() % (Ny + 1));
+  
+  while (matriz[*x][*y] != 0)
+  {
+    *x = (rand() % (Nx + 1));
+    *y = (rand() % (Ny + 1));
+  }
+  
+  int pasos = (rand() % (50 + 1 - 50)) + 50;
+  *x = *x + pasos;
+  *y = *y + pasos;
 }
