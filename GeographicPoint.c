@@ -5,8 +5,7 @@
 
 // CONSTANTES GLOBALES
 
-#define Nt 10000
-
+int Nt;
 int Nx;
 int Ny;
 
@@ -14,7 +13,7 @@ int Ny;
 
 int **Matrix(void);
 
-double Radio(int x, int y);
+int Radio(int **matriz, int x, int y);
 
 void Pasos(int **matriz, int *x, int *y);
 
@@ -29,6 +28,7 @@ int main(void)
   int filas;
   int cols;
 
+  Nt = 10000;
   Nx = 500;
   Ny = 744;
 
@@ -36,7 +36,9 @@ int main(void)
 
   Pasos(matriz, &filas, &cols);
 
-  printf("%d %d\n", filas, cols);
+  int radio = Radio(matriz, filas, cols);
+
+  printf("%d\n", radio);
 }
 
 // CUERPO DE LAS FUNCIONES 
@@ -66,26 +68,29 @@ int **Matrix(void)
 int Radio(int **matriz, int x, int y)
 {
   int i, j, z;
-  int r = 1000;
+  int r = 250;
   int radio;
 
   int q1, q2, q3, q4;
+  int c1, c2, c3, c4;
 
-  for (z = -r; z < r: z ++)
+  for (z = 1; z < r; z ++)
   {
-    for (i = 1; i < r; i ++)
+    for (i = 1; i < z; i ++)
     {
-      for (j = 1; j < r; j ++)
+      for (j = 1; j < z; j ++)
       {
+	//z = pow(pow(i, 2.0) + pow(j, 2.0), 0.5);
+	
 	q1 = matriz[x + i][y + j];
 	q2 = matriz[x - i][y + j];
 	q3 = matriz[x - i][y - j];
 	q4 = matriz[x + i][y - j];
 	
-	if (q1 == 1 || q2 == 1 || q3 == 1 || q4 ==1)
+	if (q1 == 1 || q2 == 1 || q3 == 1 || q4 == 1)
 	{
-	  break;
 	  radio = z;
+	  break;
 	}
       }
     }
@@ -95,6 +100,8 @@ int Radio(int **matriz, int x, int y)
 
 void Pasos(int **matriz, int *x, int *y)
 {
+  int i;
+  
   srand(time(NULL));
   *x = (rand() % (Nx + 1));
   *y = (rand() % (Ny + 1));
@@ -104,8 +111,12 @@ void Pasos(int **matriz, int *x, int *y)
     *x = (rand() % (Nx + 1));
     *y = (rand() % (Ny + 1));
   }
-  
-  int pasos = (rand() % (50 + 1 - 50)) + 50;
-  *x = *x + pasos;
-  *y = *y + pasos;
+
+  /*for (i = 0; i < Nt; i ++)
+  {
+    int pasos = (rand() % (50 + 1 - 50)) + 50;
+    *x = *x + pasos;
+    *y = *y + pasos;
+  }
+  */
 }
