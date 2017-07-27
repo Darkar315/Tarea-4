@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <time.h>
 
@@ -13,135 +13,129 @@ int Ny;
 
 int **Matrix(void);
 
-int Radio(int **matriz, int x, int y);
+void Num_init(int *x_x, int *y_y, int **matriz);
 
-void Pasos(int **matriz, int *x, int *y);
+int bordes(int a, int i, int N);
 
-//int Periodico();
+void Radio(int **matriz, int x, int y, int *rad);
+
+void liberar_punteros(int **matriz);
 
 // FUNCION MAIN
 
-int main(void)
+int main()
 {
-  int i, j = 0;
-
-  int filas;
-  int cols;
-
-  Nt = 10000;
+  Nt = 1000;
   Nx = 500;
   Ny = 744;
+  
+  int i, j = 0;
+  int x, y;
+  int rad = 0;
 
   int **matriz = Matrix();
 
-  Pasos(matriz, &filas, &cols);
+  Num_init(&x, &y, matriz);
+  
+  Radio(matriz, x, y, &rad);
+  printf("%d\n", rad);
+  liberar_punteros(matriz);
 
-  int radio = Radio(matriz, filas, cols);
-
-  printf("%d\n", radio);
+  return 0;
 }
 
 // CUERPO DE LAS FUNCIONES 
 
 int **Matrix(void)
 {
-   int i, j = 0;
+  int i, j = 0;
 
-   FILE *mapa;
-   mapa = fopen("map_data.txt", "r");
+  int **matriz = malloc(Nx * sizeof(int *));
+  
+  for (i = 0; i < Nx; i ++)
+  {
+    matriz[i]= malloc(Ny * sizeof(int));
+  }
 
-   int **matrix = malloc(Nx * Ny * sizeof(float));
-
-   for (i = 0; i < Nx; i ++)
-   {
-     matrix[i] = malloc(Ny * sizeof(int));
-     for (j = 0; j > Ny; j ++)
-     {
-      fscanf(mapa, "%d", &matrix[i][j]);
-     }
-   }
-
-   fclose(mapa);
-   return matrix;
+  FILE *mapa;
+  mapa = fopen("map_data.txt", "r");
+  
+  for (i = 0; i < Nx; i ++)
+  {
+    for (j = 0; j < Ny; j ++)
+    {       
+      fscanf(mapa,"%d", &matriz[i][j]);       
+    } 
+  }
+  
+  fclose(mapa);
+  return matriz;
 }
 
-int Radio(int **matriz, int x, int y)
+void Num_init(int *x_x, int *y_y, int **matriz)
 {
-  int n = 250;
-  int r, i, j;
+  int minimo = 0;
+  
+  srand(time(NULL));
+   *y_y = rand() % (Ny - minimo) + minimo;
+   *x_x = rand() % (Nx - minimo) + minimo;
 
-  int q1, q2, q3, q4;
-
-  int radio;
-  int a = 0;
-
-  for (r = 1; r < n; r ++)
+  while(matriz[*x_x][*y_y] == 1)
   {
-    if (a == 1)
-    {
-      break;
-    }
-    else
-    {
-      for (i = (x - r); i <= (x + r); i ++)
-      {
-	if (a == 1)
-	{
-	  break;
-	}
-	else
-	{
-	  for (j = (y - r); j <= (y + r); j ++)
-	  {
-	    if (a == 1)
-	    {
-	      break;
-	    }
-	    else
-	    {
-	      q1 = matriz[x + r][y];
-	      q2 = matriz[x - r][y];
-	      q3 = matriz[x][y + r];
-	      q4 = matriz[x][y - r];
-	  
-	      if (q1 == 1 || q2 == 1 || q3 == 1 || q4 == 1)
-	      {
-		radio = r - 1;
-		a = 1;
-	      }
-	    
-	      else if (matriz[i][j] == 1)
-	      {
-		radio = r;
-		a = 1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
+    *y_y = rand() % (Ny - minimo) + minimo;
+    *x_x = rand() % (Nx - minimo) + minimo;
   }
 }
 
-void Pasos(int **matriz, int *x, int *y)
+int bordes(int a, int i, int N)
+{
+  if (a >= N)
+  {
+    a = a - N + i;
+  }
+  if (a <= 0)
+  {
+    a = a + N - i;
+  }
+  return a;
+}
+
+void Radio(int **matriz, int x, int y, int *rad)
+{
+  int i, j, z;
+  int a = 0;
+  int r = *rad;
+  for (z = 0; z < Nx; z ++)
+    {
+    for (i = x - z; i < x + z ; i ++)
+      {
+      for (j = y - z; j < y + z; j ++)
+	{
+	if (pow((pow(i - x, 2.0) + pow(j - y, 2.0)), 0.5) <= z)
+	  {
+	  if(matriz[bordes(i, z, Ny)][bordes(j, z, Nx)]==1)
+	    {
+	    r = i;
+	    a = 1;
+	    break;	    
+	  }
+	}
+	if(a != 0){break;}
+      }
+      if(a != 0){break;}
+    }
+    if(a != 0){break;}
+  }
+  *rad = r;
+}
+
+void liberar_punteros(int **matriz)
 {
   int i;
   
-  srand(time(NULL));
-  *x = (rand() % (Nx + 1));
-  *y = (rand() % (Ny + 1));
-  
-  while (matriz[*x][*y] != 0)
+  for(i = 0; i < Nx; i ++)
   {
-    *x = (rand() % (Nx + 1));
-    *y = (rand() % (Ny + 1));
-  }
-
-  /*for (i = 0; i < Nt; i ++)
-  {
-    int pasos = (rand() % (50 + 1 - 50)) + 50;
-    *x = *x + pasos;
-    *y = *y + pasos;
-  }
-  */
+    free(matriz[i]);
+  }  
+  free(matriz);
 }
