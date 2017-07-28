@@ -13,34 +13,96 @@ int Ny;
 
 int **Matrix(void);
 
-void Num_init(int *x_x, int *y_y, int **matriz);
+void Num_init(int *xx, int *yy, int **matriz);
 
-int bordes(int a, int i, int N);
+int Per(int z, int N);
 
-void Radio(int **matriz, int x, int y, int *rad);
+int Radio(int **matriz, int x, int y);
 
-void liberar_punteros(int **matriz);
+//void numeros(int x, int y, int *x1, int *y1, int **matriz);
 
 // FUNCION MAIN
 
 int main()
 {
-  Nt = 1000;
+  Nt = 150;
   Nx = 500;
   Ny = 744;
   
-  int i, j = 0;
+  int i, j;
   int x, y;
+  int x1, y1;
+  int xf, yf;
   int rad = 0;
+  int rad1, rad2;
+
+  float a, b;
 
   int **matriz = Matrix();
 
   Num_init(&x, &y, matriz);
-  
-  Radio(matriz, x, y, &rad);
-  printf("%d\n", rad);
-  liberar_punteros(matriz);
 
+  rad1 = Radio(matriz, x, y);
+
+  srand(time(NULL));
+  for (i = 0; i < Nt; i ++)
+  {
+    float beta, alpha;
+
+    beta = drand48();
+
+    int pasos = 25;
+  
+    x1 = x + (rand() % (pasos  - (-pasos) )) + (-pasos);
+    y1 = y + (rand() % (pasos - (-pasos) )) + (-pasos);
+
+    while(matriz[Per(x1, Nx)][Per(y1, Ny)] != 0)
+    {
+      x1 = x + (rand() % (pasos - (-pasos) )) + (-pasos);
+      y1 = y + (rand() % (pasos  - (-pasos) )) + (-pasos);
+    }
+
+    rad2 = Radio(matriz, x1, y1);
+
+    a = rad1;
+    b = rad2;
+
+    if (rad2 > rad)
+    {
+      rad = rad2;
+      xf = x1;
+      yf = y1;
+    }
+    
+    alpha = b / a;
+
+    if (alpha >= 1)
+    {
+      rad1 = rad2;
+      x = x1;
+      y = y1;
+    }
+    else
+    {
+      if (beta <= alpha)
+      {
+	rad1 = rad2;
+	x = x1;
+	y = y1;
+      }
+      else
+      {
+	continue;
+      }
+    }
+  }
+  xf = Per(xf, Nx);
+  yf = Per(yf, Ny);
+
+  FILE *datos;
+  datos = fopen("datos.txt", "w+");
+  
+  fprintf(datos, "%d %d %d\n", rad, xf, yf);
   return 0;
 }
 
@@ -72,50 +134,53 @@ int **Matrix(void)
   return matriz;
 }
 
-void Num_init(int *x_x, int *y_y, int **matriz)
+void Num_init(int *xx, int *yy, int **matriz)
 {
-  int minimo = 0;
-  
+  int a=*xx;
+  int b=*yy;
   srand(time(NULL));
-   *y_y = rand() % (Ny - minimo) + minimo;
-   *x_x = rand() % (Nx - minimo) + minimo;
+  a = rand() % Nx;
+  b = rand() % Ny;
 
-  while(matriz[*x_x][*y_y] == 1)
+  while(matriz[a][b] == 1)
   {
-    *y_y = rand() % (Ny - minimo) + minimo;
-    *x_x = rand() % (Nx - minimo) + minimo;
+    a = rand() % Nx;
+    b = rand() % Ny;
   }
+  *xx=a;
+  *yy=b;
 }
 
-int bordes(int a, int i, int N)
+int Per(int z, int N)
 {
-  if (a >= N)
+  if (z >= N)
   {
-    a = a - N + i;
+    z = z % N;
   }
-  if (a <= 0)
+  if (z < 0)
   {
-    a = a + N - i;
+    z = z + N;
   }
-  return a;
+  return z;
 }
 
-void Radio(int **matriz, int x, int y, int *rad)
+int Radio(int **matriz, int x, int y)
 {
   int i, j, z;
   int a = 0;
-  int r = *rad;
-  for (z = 0; z < Nx; z ++)
+  int r = 0;
+  
+  for (z = 1; z < Nx; z ++)
     {
-    for (i = x - z; i < x + z ; i ++)
+    for (i = x - z; i <= x + z ; i ++)
       {
-      for (j = y - z; j < y + z; j ++)
+      for (j = y - z; j <= y + z; j ++)
 	{
 	if (pow((pow(i - x, 2.0) + pow(j - y, 2.0)), 0.5) <= z)
 	  {
-	  if(matriz[bordes(i, z, Ny)][bordes(j, z, Nx)]==1)
+	  if (matriz[Per(i, Ny)][Per(j, Nx)] == 1)
 	    {
-	    r = i;
+	    r = z;
 	    a = 1;
 	    break;	    
 	  }
@@ -126,16 +191,22 @@ void Radio(int **matriz, int x, int y, int *rad)
     }
     if(a != 0){break;}
   }
-  *rad = r;
+  return r;
 }
 
-void liberar_punteros(int **matriz)
+/*void numeros(int x, int y, int *x1, int *y1, int **matriz)
 {
-  int i;
+  srand(time(NULL));
+  int minimo = -50;
+  int pasos = (rand() % (50 - minimo)) + minimo;
   
-  for(i = 0; i < Nx; i ++)
+  *x1 = x + (rand() % (pasos  - (-pasos) )) + (-pasos);
+  *y1 = y + (rand() % (pasos - (-pasos) )) + (-pasos);
+
+  while(matriz[Per(*x1, Nx)][Per(*y1, Ny)] != 0)
   {
-    free(matriz[i]);
-  }  
-  free(matriz);
+    *x1 = x + (rand() % (pasos - (-pasos) )) + (-pasos);
+    *y1 = y + (rand() % (pasos  - (-pasos) )) + (-pasos);
+  }
 }
+*/
